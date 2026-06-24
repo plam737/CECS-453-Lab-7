@@ -13,10 +13,16 @@ class NoteProvider extends ChangeNotifier {
   
   Future<void> fetchNotes() async {
     _isLoading = true;
-    notifyListeners(); // Notify UI to show a loading indicator
-    _notes = await _repository.getNotes();
-    _isLoading = false;
-    notifyListeners(); // Notify UI with the new data
+    notifyListeners();
+    try {
+      _notes = await _repository.getNotes();
+    } catch (e) {
+      _notes = [];
+      debugPrint('fetchNotes error: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> addNote(Note note) async {
