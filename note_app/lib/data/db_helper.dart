@@ -20,14 +20,18 @@ class DBHelper {
     String path = join(await getDatabasesPath(), 'notes.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // bumped to trigger onUpgrade
       onCreate: _onCreate,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        await db.execute('DROP TABLE IF EXISTS notes');
+        await _onCreate(db, newVersion);
+      },
     );
   }
-  
+
   Future<void> _onCreate(Database db, int version) async {
     await db.execute(
-      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT)',
+      'CREATE TABLE notes(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, date TEXT)',
     );
   }
 
@@ -39,9 +43,7 @@ class DBHelper {
   Future<List<Note>> getNotes() async {
     Database db = await database;
     final List<Map<String, dynamic>> maps = await db.query('notes');
-    return List.generate(maps.length, (i) {
-      return Note.fromMap(maps[i]);
-    });
+    return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
   }
 
   Future<int> updateNote(Note note) async {

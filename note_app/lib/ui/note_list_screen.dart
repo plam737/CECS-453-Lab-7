@@ -6,6 +6,10 @@ import 'package:note_app/ui/add_note_screen.dart';
 class NoteListScreen extends StatelessWidget {
   const NoteListScreen({super.key});
 
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +54,7 @@ class NoteListScreen extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             itemCount: provider.notes.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final note = provider.notes[index];
               return Card(
@@ -65,16 +69,28 @@ class NoteListScreen extends StatelessWidget {
                     note.title,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: note.description.isNotEmpty
-                      ? Padding(
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (note.description.isNotEmpty)
+                        Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             note.description,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        )
-                      : null,
+                        ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _formatDate(note.date),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                     tooltip: 'Delete',
