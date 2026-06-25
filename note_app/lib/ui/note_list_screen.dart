@@ -54,7 +54,7 @@ class NoteListScreen extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             itemCount: provider.notes.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final note = provider.notes[index];
               return Card(
@@ -91,23 +91,33 @@ class NoteListScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                    tooltip: 'Delete',
-                    onPressed: () => _confirmDelete(context, provider, note.id!),
-                  ),
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddNoteScreen(note: note),
+                  // edit + delete icons side by side
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit_outlined, color: Colors.blueAccent),
+                        tooltip: 'Edit',
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddNoteScreen(note: note),
+                            ),
+                          );
+                          if (context.mounted) {
+                            Provider.of<NoteProvider>(context, listen: false)
+                                .fetchNotes();
+                          }
+                        },
                       ),
-                    );
-                    if (context.mounted) {
-                      Provider.of<NoteProvider>(context, listen: false)
-                          .fetchNotes();
-                    }
-                  },
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                        tooltip: 'Delete',
+                        onPressed: () => _confirmDelete(context, provider, note.id!),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
